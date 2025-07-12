@@ -177,44 +177,119 @@
                         )}
 
                         {/* Step 3: Results */}
-                        {step === 3 && result && (
-                            <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-                                <h2 className="text-2xl font-bold mb-4">Here's what the data says...</h2>
+{step === 3 && result && (
+    <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+        <h2 className="text-2xl font-bold mb-6">Here's what the data says...</h2>
+        
+        {/* Probability Breakdown Table */}
+        <div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-bold mb-4 text-center">The Probability Breakdown</h3>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-purple-500/30">
+                            <th className="text-left p-2 font-semibold text-purple-200">What We're Measuring</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Math Symbol</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Your %</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Data Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
+                            <td className="p-2 font-semibold text-purple-100" colSpan="4">STARTING POINT</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">How likely this normally is</td>
+                            <td className="p-2 font-mono text-yellow-400">P(H)</td>
+                            <td className="p-2 text-green-400 font-bold">
+                                {result.prior_probability || 'N/A'}%
+                            </td>
+                            <td className="p-2 text-blue-400 text-xs">
+                                {result.prior_source || 'AI Research Analysis'}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
+                            <td className="p-2 font-semibold text-purple-100" colSpan="4">YOUR EVIDENCE</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">Evidence supporting your wish</td>
+                            <td className="p-2 font-mono text-yellow-400">P(E|H)</td>
+                            <td className="p-2 text-green-400 font-bold">
+                                {result.evidence_true || 0}%
+                            </td>
+                            <td className="p-2 text-purple-300 text-xs">Based on your answers</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">Evidence that might contradict it</td>
+                            <td className="p-2 font-mono text-yellow-400">P(E|¬H)</td>
+                            <td className="p-2 text-red-400 font-bold">
+                                {result.evidence_false || 0}%
+                            </td>
+                            <td className="p-2 text-purple-300 text-xs">The flip side calculation</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20 bg-emerald-950/30">
+                            <td className="p-2 font-semibold text-emerald-100" colSpan="4">YOUR FINAL ODDS</td>
+                        </tr>
+                        <tr>
+                            <td className="p-2 text-emerald-100">Updated probability after all evidence</td>
+                            <td className="p-2 font-mono text-yellow-400">P(H|E)</td>
+                            <td className="p-2 font-bold text-emerald-300 text-lg">
+                                {result.posterior_probability || 0}%
+                            </td>
+                            <td className="p-2 text-blue-400 text-xs">Bayes' Theorem Magic</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* Formula Display */}
+            {result.formula_display && (
+                <div className="mt-4 p-3 bg-black/30 rounded text-center">
+                    <p className="text-purple-300 font-mono text-sm">
+                        <strong>Sacred Formula:</strong> {result.formula_display}
+                    </p>
+                </div>
+            )}
+        </div>
+
+        {/* Big Result Display */}
+        <div className="text-center mb-6">
+            <div className="text-6xl font-bold text-purple-300 mb-2">
+                {result.posterior_probability || 0}%
+            </div>
+            <p className="text-purple-200">Your Final Probability</p>
+        </div>
+
+        {/* Interpretation */}
+        {result.interpretation && (
+            <div className="bg-indigo-900/40 p-4 rounded mb-4">
+                <div dangerouslySetInnerHTML={{ 
+                    __html: result.interpretation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                }} />
+            </div>
+        )}
+
+        {/* Evidence Summary */}
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className="bg-green-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence For</div>
+                <div className="text-xl">{result.evidence_true || 0}%</div>
+            </div>
+            <div className="bg-red-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence Against</div>
+                <div className="text-xl">{result.evidence_false || 0}%</div>
+            </div>
+        </div>
+
+        <button 
+            onClick={reset} 
+            className="w-full bg-purple-600 py-3 rounded font-semibold hover:bg-purple-700 transition-all"
+        >
+            Try Another Prediction
+        </button>
+    </div>
+)}
                                 
-                                <div className="text-center mb-6">
-                                    <div className="text-6xl font-bold text-purple-300 mb-2">
-                                        {result.posterior_probability || 0}%
-                                    </div>
-                                    <p className="text-purple-200">Your Final Probability</p>
-                                </div>
-
-                                {result.interpretation && (
-                                    <div className="bg-indigo-900/40 p-4 rounded mb-4">
-                                        <div dangerouslySetInnerHTML={{ 
-                                            __html: result.interpretation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                                        }} />
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                                    <div className="bg-green-800/30 p-3 rounded">
-                                        <div className="font-semibold">Evidence For</div>
-                                        <div className="text-xl">{result.evidence_true || 0}%</div>
-                                    </div>
-                                    <div className="bg-red-800/30 p-3 rounded">
-                                        <div className="font-semibold">Evidence Against</div>
-                                        <div className="text-xl">{result.evidence_false || 0}%</div>
-                                    </div>
-                                </div>
-
-                                <button 
-                                    onClick={reset} 
-                                    className="w-full bg-purple-600 py-3 rounded font-semibold hover:bg-purple-700 transition-all"
-                                >
-                                    Try Another Prediction
-                                </button>
-                            </div>
-                        )}
 
                         {/* Footer */}
                         <div className="text-center mt-8 text-purple-300 text-sm">
