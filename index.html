@@ -86,65 +86,221 @@
             return (
                 <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-6">
                     <div className="max-w-2xl mx-auto">
-                        {/* Other components remain unchanged */}
+                        
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                                Bayesic Instinct
+                            </h1>
+                            <p className="text-purple-200">Your data-driven horoscope</p>
+                        </div>
 
-                        {/* Step 3: Results */}
-                        {step === 3 && result && (
+                        {/* Step 1: Input */}
+                        {step === 1 && (
                             <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-                                <h2 className="text-2xl font-bold mb-6">Here's what the data says...</h2>
-                                <div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
-                                    <h3 className="text-lg font-bold mb-4 text-center">Bayesian Calculation Breakdown</h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm border-collapse">
-                                            <tbody>
-                                                <tr className="bg-blue-900/30">
-                                                    <td className="p-3 font-bold text-blue-100" colSpan="4">PRIOR PROBABILITY</td>
-                                                </tr>
-                                                <tr className="border-b border-purple-500/20">
-                                                    <td className="p-3 text-purple-100">Initial estimate of how likely it is that your belief is true</td>
-                                                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">X</td>
-                                                    <td className="p-3 text-center text-green-400 font-bold text-lg">{result.prior_probability || 'N/A'}%</td>
-                                                    <td className="p-3 text-blue-400 text-xs">
-                                                        {result.prior_source || 'Research baseline'}
-                                                        {result.prior_statistic && <div className="mt-1 text-blue-300">{result.prior_statistic}</div>}
-                                                        {result.prior_reason && <div className="mt-1 text-purple-300 italic">{result.prior_reason}</div>}
-                                                    </td>
-                                                </tr>
+                                <h2 className="text-2xl font-bold mb-4">What do you wish will come true?</h2>
+                                
+                                <textarea
+                                    value={belief}
+                                    onChange={(e) => setBelief(e.target.value)}
+                                    className="w-full p-4 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
+                                    rows="3"
+                                    placeholder="'My crush likes me back', 'I look stunning with bangs', 'I don't secretly hate ice cream'"
+                                />
+                                
+                                <div className="bg-indigo-800/40 p-4 rounded mt-4">
+                                    <h3 className="font-semibold mb-2">Why Bayes' Theorem is Actually Genius</h3>
+                                   <div className="text-sm text-indigo-200 space-y-3">
+    <p>
+        Bayes' theorem is awesome because it takes into account the power of our own conviction. The probability of an outcome is influenced by our original belief ("he likes me"), evidence ("he spilled juice on me"), and how we interpret that evidence in context.
+    </p>
+    <p>
+        Unlike regular statistics that just crunch numbers, Bayesian thinking mirrors how we actually make decisions in real life - we start with a hunch, gather clues, and constantly update our beliefs.
+    </p>
+    <p className="italic text-indigo-300">
+        "The theorem forces us to be humble about what we know while staying curious about what we might discover. In doing so, it makes us confront our own imperfections." - Nate Silver, The Signal and The Noise
+    </p>
+    <p>
+        Named after Rev. Thomas Bayes (1701-1761), who basically invented the math behind "trust but verify" and "it's complicated" centuries before those became relationship statuses.
+    </p>
+</div>
+                                </div>
 
-                                                <tr className="bg-purple-900/30">
-                                                    <td className="p-3 font-bold text-purple-100" colSpan="4">A NEW EVENT OCCURS: YOUR RESPONSES ARE ANALYZED</td>
-                                                </tr>
-                                                <tr className="border-b border-purple-500/20">
-                                                    <td className="p-3 text-purple-100">Probability of your responses appearing, conditional on your belief being true</td>
-                                                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Y</td>
-                                                    <td className="p-3 text-center text-green-400 font-bold text-lg">{result.evidence_true || 0}%</td>
-                                                    <td className="p-3 text-purple-300 text-xs">
-                                                        Based on sentiment analysis of your answers
-                                                        {result.evidence_true_reason && <div className="mt-1 text-purple-300 italic">{result.evidence_true_reason}</div>}
-                                                    </td>
-                                                </tr>
-                                                <tr className="border-b border-purple-500/20">
-                                                    <td className="p-3 text-purple-100">Probability of your responses appearing if your belief is NOT true</td>
-                                                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Z</td>
-                                                    <td className="p-3 text-center text-red-400 font-bold text-lg">{result.evidence_false || 0}%</td>
-                                                    <td className="p-3 text-purple-300 text-xs">
-                                                        Conditional probability analysis
-                                                        {result.evidence_false_reason && <div className="mt-1 text-purple-300 italic">{result.evidence_false_reason}</div>}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                <button
+                                    onClick={handleAnalyze}
+                                    disabled={!belief.trim() || loading}
+                                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-purple-700 hover:to-pink-700 transition-all"
+                                >
+                                    {loading ? 'Crunching numbers...' : "Let's Calculate Your Odds!"}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Step 2: Questions */}
+                        {step === 2 && (
+                            <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+                                <h2 className="text-2xl font-bold mb-4">Time for some follow-up questions!</h2>
+                                
+                                {questions.map((question, index) => (
+                                    <div key={index} className="mb-4">
+                                        <label className="block mb-2 font-medium">{question}</label>
+                                        <textarea
+                                            value={answers[index] || ''}
+                                            onChange={(e) => {
+                                                const newAnswers = [...answers];
+                                                newAnswers[index] = e.target.value;
+                                                setAnswers(newAnswers);
+                                            }}
+                                            className="w-full p-3 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
+                                            rows="3"
+                                            placeholder="Tell us what you really think..."
+                                        />
                                     </div>
+                                ))}
+
+                                <div className="flex gap-3 mt-6">
+                                    <button
+                                        onClick={handleCalculate}
+                                        disabled={loading || answers.some(a => !a.trim())}
+                                        className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-violet-700 hover:to-purple-700 transition-all"
+                                    >
+                                        {loading ? 'Doing the math...' : 'Show Me The Results!'}
+                                    </button>
+                                    <button 
+                                        onClick={reset} 
+                                        className="px-6 py-3 border border-purple-400 rounded hover:bg-purple-700/30 transition-all"
+                                    >
+                                        Start Over
+                                    </button>
                                 </div>
                             </div>
                         )}
+
+                        {/* Step 3: Results */}
+{step === 3 && result && (
+    <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+        <h2 className="text-2xl font-bold mb-6">Here's what the data says...</h2>
+        
+        {/* Probability Breakdown Table */}
+        <div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-bold mb-4 text-center">The Probability Breakdown</h3>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-purple-500/30">
+                            <th className="text-left p-2 font-semibold text-purple-200">What We're Measuring</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Math Symbol</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Your %</th>
+                            <th className="text-left p-2 font-semibold text-purple-200">Data Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
+                            <td className="p-2 font-semibold text-purple-100" colSpan="4">STARTING POINT</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">How likely this normally is</td>
+                            <td className="p-2 font-mono text-yellow-400">P(H)</td>
+                            <td className="p-2 text-green-400 font-bold">
+                                {result.prior_probability || 'N/A'}%
+                            </td>
+                            <td className="p-2 text-blue-400 text-xs">
+                                {result.prior_source || 'AI Research Analysis'}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
+                            <td className="p-2 font-semibold text-purple-100" colSpan="4">YOUR EVIDENCE</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">Evidence supporting your wish</td>
+                            <td className="p-2 font-mono text-yellow-400">P(E|H)</td>
+                            <td className="p-2 text-green-400 font-bold">
+                                {result.evidence_true || 0}%
+                            </td>
+                            <td className="p-2 text-purple-300 text-xs">Based on your answers</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20">
+                            <td className="p-2 text-purple-100">Evidence that might contradict it</td>
+                            <td className="p-2 font-mono text-yellow-400">P(E|¬H)</td>
+                            <td className="p-2 text-red-400 font-bold">
+                                {result.evidence_false || 0}%
+                            </td>
+                            <td className="p-2 text-purple-300 text-xs">The flip side calculation</td>
+                        </tr>
+                        <tr className="border-b border-purple-500/20 bg-emerald-950/30">
+                            <td className="p-2 font-semibold text-emerald-100" colSpan="4">YOUR FINAL ODDS</td>
+                        </tr>
+                        <tr>
+                            <td className="p-2 text-emerald-100">Updated probability after all evidence</td>
+                            <td className="p-2 font-mono text-yellow-400">P(H|E)</td>
+                            <td className="p-2 font-bold text-emerald-300 text-lg">
+                                {result.posterior_probability || 0}%
+                            </td>
+                            <td className="p-2 text-blue-400 text-xs">Bayes' Theorem Magic</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* Formula Display */}
+            {result.formula_display && (
+                <div className="mt-4 p-3 bg-black/30 rounded text-center">
+                    <p className="text-purple-300 font-mono text-sm">
+                        <strong>Sacred Formula:</strong> {result.formula_display}
+                    </p>
+                </div>
+            )}
+        </div>
+
+        {/* Big Result Display */}
+        <div className="text-center mb-6">
+            <div className="text-6xl font-bold text-purple-300 mb-2">
+                {result.posterior_probability || 0}%
+            </div>
+            <p className="text-purple-200">Your Final Probability</p>
+        </div>
+
+        {/* Interpretation */}
+        {result.interpretation && (
+            <div className="bg-indigo-900/40 p-4 rounded mb-4">
+                <div dangerouslySetInnerHTML={{ 
+                    __html: result.interpretation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                }} />
+            </div>
+        )}
+
+        {/* Evidence Summary */}
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className="bg-green-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence For</div>
+                <div className="text-xl">{result.evidence_true || 0}%</div>
+            </div>
+            <div className="bg-red-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence Against</div>
+                <div className="text-xl">{result.evidence_false || 0}%</div>
+            </div>
+        </div>
+
+        <button 
+            onClick={reset} 
+            className="w-full bg-purple-600 py-3 rounded font-semibold hover:bg-purple-700 transition-all"
+        >
+            Try Another Prediction
+        </button>
+    </div>
+)}
+                                
+
+                        {/* Footer */}
+                        <div className="text-center mt-8 text-purple-300 text-sm">
+                            "Fortune favours the brave"
+                        </div>
                     </div>
                 </div>
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<BayesicInstinct />);
+        ReactDOM.render(<BayesicInstinct />, document.getElementById('root'));
     </script>
 </body>
 </html>
