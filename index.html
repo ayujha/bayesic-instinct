@@ -1,307 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bayesic Instinct - Your Data-Driven Horoscope</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayesic Instinct - Your Data-Driven Horoscope</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    </style>
 </head>
 <body>
-  <div id="root"></div>
+    <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState } = React;
+    <script type="text/babel">
+        const { useState } = React;
 
-    function BayesicInstinct() {
-      const [belief, setBelief] = useState('');
-      const [step, setStep] = useState(1);
-      const [loading, setLoading] = useState(false);
-      const [questions, setQuestions] = useState([]);
-      const [answers, setAnswers] = useState([]);
-      const [result, setResult] = useState(null);
+        const BayesicInstinct = () => {
+            const [belief, setBelief] = useState('');
+            const [step, setStep] = useState(1);
+            const [loading, setLoading] = useState(false);
+            const [questions, setQuestions] = useState([]);
+            const [answers, setAnswers] = useState([]);
+            const [result, setResult] = useState(null);
 
-      const handleAnalyze = async () => {
-        if (!belief.trim()) return;
-        setLoading(true);
-        try {
-          const res = await fetch(
-            'https://hook.eu2.make.com/iqhhvjbiqj72796bl96gnlqgfhzajudy',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ belief, step: 'analyze' }),
-            }
-          );
-          const data = await res.json();
-          setQuestions(data.questions || []);
-          setAnswers(new Array((data.questions || []).length).fill(''));
-          setResult(data);
-          setStep(2);
-        } catch (err) {
-          console.error(err);
-          alert('Error analyzing belief.');
-        } finally {
-          setLoading(false);
-        }
-      };
+            const handleAnalyze = async () => {
+                if (!belief.trim()) return;
+                setLoading(true);
+                
+                try {
+                    const response = await fetch('https://hook.eu2.make.com/iqhhvjbiqj72796bl96gnlqgfhzajudy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ belief, step: 'analyze' })
+                    });
+                    
+                    const data = await response.json();
+                    setQuestions(data.questions || []);
+                    setAnswers(new Array(data.questions?.length || 0).fill(''));
+                    setStep(2);
+                } catch (error) {
+                    console.error('Webhook error:', error);
+                    alert('Something went wrong. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-      const handleCalculate = async () => {
-        if (answers.some((a) => !a.trim())) {
-          alert('Please answer all questions.');
-          return;
-        }
-        setLoading(true);
-        try {
-          const res = await fetch(
-            'https://hook.eu2.make.com/a5xiec7iyrshy7c0tpdij0u4d2wqiyzh',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ belief, questions, answers, step: 'calculate' }),
-            }
-          );
-          const data = await res.json();
-          setResult((prev) => ({ ...prev, ...data }));
-          setStep(3);
-        } catch (err) {
-          console.error(err);
-          alert('Error calculating probability.');
-        } finally {
-          setLoading(false);
-        }
-      };
+            const handleCalculate = async () => {
+                if (answers.some(a => !a.trim())) {
+                    alert('Please answer all questions!');
+                    return;
+                }
+                
+                setLoading(true);
+                
+                try {
+                    const response = await fetch('https://hook.eu2.make.com/a5xiec7iyrshy7c0tpdij0u4d2wqiyzh', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ belief, questions, answers, step: 'calculate' })
+                    });
+                    
+                    const data = await response.json();
+                    setResult(data);
+                    setStep(3);
+                } catch (error) {
+                    console.error('Calculation error:', error);
+                    alert('Calculation failed. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-      const reset = () => {
-        setBelief('');
-        setStep(1);
-        setQuestions([]);
-        setAnswers([]);
-        setResult(null);
-      };
+            const reset = () => {
+                setBelief('');
+                setStep(1);
+                setQuestions([]);
+                setAnswers([]);
+                setResult(null);
+            };
 
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-6">
-          <div className="max-w-2xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
-                Bayesic Instinct
-              </h1>
-              <p className="text-purple-200">Your data-driven horoscope</p>
-            </div>
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 text-white p-6">
+                    <div className="max-w-2xl mx-auto">
+                        
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                                Bayesic Instinct
+                            </h1>
+                            <p className="text-purple-200">Your data-driven horoscope</p>
+                        </div>
 
-            {/* Step 1 */}
-            {step === 1 && (
-              <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-                <h2 className="text-2xl font-bold mb-4">
-                  What do you wish will come true?
-                </h2>
-                <textarea
-                  value={belief}
-                  onChange={(e) => setBelief(e.target.value)}
-                  className="w-full p-4 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
-                  rows="3"
-                  placeholder="'My crush likes me back', 'I will lose weight', 'I will get that job'"
-                />
-                <button
-                  onClick={handleAnalyze}
-                  disabled={!belief.trim() || loading}
-                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-purple-700 hover:to-pink-700 transition-all"
-                >
-                  {loading ? 'Analyzing...' : "Let's Analyze"}
-                </button>
-              </div>
-            )}
+                        {/* Step 1: Input */}
+                        {step === 1 && (
+                            <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+                                <h2 className="text-2xl font-bold mb-4">What do you wish will come true?</h2>
+                                
+                                <textarea
+                                    value={belief}
+                                    onChange={(e) => setBelief(e.target.value)}
+                                    className="w-full p-4 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
+                                    rows="3"
+                                    placeholder="'My crush likes me back', 'I look stunning with bangs', 'I don't secretly hate ice cream'"
+                                />
+                                
+                                <div className="bg-indigo-800/40 p-4 rounded mt-4">
+                                    <h3 className="font-semibold mb-2">Why Bayes' Theorem is Actually Genius</h3>
+                                   <div className="text-sm text-indigo-200 space-y-3">
+    <p>
+        Bayes' theorem is awesome because it takes into account the power of our own conviction. The probability of an outcome is influenced by our original belief ("he likes me"), evidence ("he spilled juice on me"), and how we interpret that evidence in context.
+    </p>
+    <p>
+        Unlike regular statistics that just crunch numbers, Bayesian thinking mirrors how we actually make decisions in real life - we start with a hunch, gather clues, and constantly update our beliefs.
+    </p>
+    <p className="italic text-indigo-300">
+        "The theorem forces us to be humble about what we know while staying curious about what we might discover. In doing so, it makes us confront our own imperfections." - Nate Silver, The Signal and The Noise
+    </p>
+    <p>
+        Named after Rev. Thomas Bayes (1701-1761), who basically invented the math behind "trust but verify" and "it's complicated" centuries before those became relationship statuses.
+    </p>
+</div>
+                                </div>
 
-            {/* Step 2 */}
-            {step === 2 && (
-              <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-                <h2 className="text-2xl font-bold mb-4">
-                  Follow-up questions
-                </h2>
-                {questions.map((q, i) => (
-                  <div key={i} className="mb-4">
-                    <label className="block mb-2 font-medium">{q}</label>
-                    <textarea
-                      value={answers[i]}
-                      onChange={(e) => {
-                        const arr = [...answers];
-                        arr[i] = e.target.value;
-                        setAnswers(arr);
-                      }}
-                      className="w-full p-3 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
-                      rows="2"
-                      placeholder="Your answer here..."
-                    />
-                  </div>
-                ))}
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={handleCalculate}
-                    disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-violet-700 hover:to-purple-700 transition-all"
-                  >
-                    {loading ? 'Calculating...' : 'Calculate Probability'}
-                  </button>
-                  <button
-                    onClick={reset}
-                    className="px-6 py-3 border border-purple-400 rounded hover:bg-purple-700/30 transition-all"
-                  >
-                    Start Over
-                  </button>
-                </div>
-              </div>
-            )}
+                                <button
+                                    onClick={handleAnalyze}
+                                    disabled={!belief.trim() || loading}
+                                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-purple-700 hover:to-pink-700 transition-all"
+                                >
+                                    {loading ? 'Crunching numbers...' : "Let's Calculate Your Odds!"}
+                                </button>
+                            </div>
+                        )}
 
-            {/* Step 3 */}
-            {step === 3 && result && (
-              <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-                <h2 className="text-2xl font-bold mb-6">
-                  Here's what the data says...
-                </h2>
-                <div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-center">
-                    Bayesian Calculation Breakdown
-                  </h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm border-collapse">
-                      <tbody>
-                        {/* PRIOR */}
-                        <tr className="bg-blue-900/30">
-                          <td colSpan="4" className="p-3 font-bold text-blue-100">
-                            PRIOR PROBABILITY
-                          </td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                          <td className="p-3 text-purple-100">
-                            Initial estimate of how likely your belief is true
-                          </td>
-                          <td className="p-3 text-center font-mono text-yellow-400 text-lg">
-                            X
-                          </td>
-                          <td className="p-3 text-center text-green-400 font-bold text-lg">
-                            {typeof result.prior_probability === 'number'
-                              ? result.prior_probability + '%'
-                              : 'N/A'}
-                          </td>
-                          <td className="p-3 text-blue-400 text-xs">
-                            {result.prior_source || 'Research baseline'}
-                            {result.prior_reason && (
-                              <div className="mt-1 text-purple-300 italic">
-                                {result.prior_reason}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                        {/* EVIDENCE */}
-                        <tr className="bg-purple-900/30">
-                          <td colSpan="4" className="p-3 font-bold text-purple-100">
-                            A NEW EVENT OCCURS: YOUR RESPONSES ARE ANALYZED
-                          </td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                          <td className="p-3 text-purple-100">
-                            P(responses | belief true)
-                          </td>
-                          <td className="p-3 text-center font-mono text-yellow-400 text-lg">
-                            Y
-                          </td>
-                          <td className="p-3 text-center text-green-400 font-bold text-lg">
-                            {result.evidence_true + '%'}
-                          </td>
-                          <td className="p-3 text-purple-300 text-xs">
-                            {result.evidence_true_reason && (
-                              <div className="mt-1 text-purple-300 italic">
-                                {result.evidence_true_reason}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                          <td className="p-3 text-purple-100">
-                            P(responses | belief false)
-                          </td>
-                          <td className="p-3 text-center font-mono text-yellow-400 text-lg">
-                            Z
-                          </td>
-                          <td className="p-3 text-center text-red-400 font-bold text-lg">
-                            {result.evidence_false + '%'}
-                          </td>
-                          <td className="p-3 text-purple-300 text-xs">
-                            {result.evidence_false_reason && (
-                              <div className="mt-1 text-purple-300 italic">
-                                {result.evidence_false_reason}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                        {/* POSTERIOR */}
-                        <tr className="bg-emerald-900/30">
-                          <td colSpan="4" className="p-3 font-bold text-emerald-100">
-                            POSTERIOR PROBABILITY
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="p-3 text-emerald-100">
-                            Revised estimate given your responses
-                          </td>
-                          <td className="p-3 text-center font-mono text-yellow-400 text-lg">
-                            {result.formula_display}
-                          </td>
-                          <td className="p-3 text-center text-emerald-300 font-bold text-2xl">
-                            {result.posterior_probability + '%'}
-                          </td>
-                          <td className="p-3 text-blue-400 text-xs">
-                            {result.interpretation}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                {/* Answer Recap */}
-                <div className="mt-6 bg-indigo-800/40 p-4 rounded">
-                  <h4 className="font-semibold text-purple-200 mb-2">
-                    Your Evidence Summary
-                  </h4>
-                  {questions.map((q, i) => (
-                    <div key={i} className="mb-3">
-                      <div className="text-sm text-purple-400 italic">Q: {q}</div>
-                      <div className="text-md text-purple-100 font-medium">
-                        A: {answers[i]}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Final Display */}
-                <div className="text-center mt-6">
-                  <div className="text-6xl font-bold text-purple-300">
-                    {result.posterior_probability + '%'}
-                  </div>
-                  <button
-                    onClick={reset}
-                    className="mt-4 w-full bg-purple-600 py-3 rounded font-semibold hover:bg-purple-700 transition-all"
-                  >
-                    Try Another Prediction
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+                        {/* Step 2: Questions */}
+                        {step === 2 && (
+                            <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+                                <h2 className="text-2xl font-bold mb-4">Time for some follow-up questions!</h2>
+                                
+                                {questions.map((question, index) => (
+                                    <div key={index} className="mb-4">
+                                        <label className="block mb-2 font-medium">{question}</label>
+                                        <textarea
+                                            value={answers[index] || ''}
+                                            onChange={(e) => {
+                                                const newAnswers = [...answers];
+                                                newAnswers[index] = e.target.value;
+                                                setAnswers(newAnswers);
+                                            }}
+                                            className="w-full p-3 rounded bg-black/30 text-white border border-purple-500/30 focus:border-purple-400"
+                                            rows="3"
+                                            placeholder="Tell us what you really think..."
+                                        />
+                                    </div>
+                                ))}
+
+                                <div className="flex gap-3 mt-6">
+                                    <button
+                                        onClick={handleCalculate}
+                                        disabled={loading || answers.some(a => !a.trim())}
+                                        className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 py-3 rounded font-semibold disabled:opacity-50 hover:from-violet-700 hover:to-purple-700 transition-all"
+                                    >
+                                        {loading ? 'Doing the math...' : 'Show Me The Results!'}
+                                    </button>
+                                    <button 
+                                        onClick={reset} 
+                                        className="px-6 py-3 border border-purple-400 rounded hover:bg-purple-700/30 transition-all"
+                                    >
+                                        Start Over
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step 3: Results */}
+{step === 3 && result && (
+    <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
+        <h2 className="text-2xl font-bold mb-6">Here's what the data says...</h2>
+        
+        {/* Detailed Calculation Table */}
+<div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
+    <h3 className="text-lg font-bold mb-4 text-center">Bayesian Calculation Breakdown</h3>
+    <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+            <thead>
+                <tr className="border-b-2 border-purple-500/40">
+                    <th className="text-left p-3 font-semibold text-purple-200 w-2/5">Component</th>
+                    <th className="text-center p-3 font-semibold text-purple-200 w-1/6">Variable</th>
+                    <th className="text-center p-3 font-semibold text-purple-200 w-1/6">Value</th>
+                    <th className="text-left p-3 font-semibold text-purple-200 w-1/3">Source/Citation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {/* Prior Probability Section */}
+                <tr className="bg-blue-900/30">
+                    <td className="p-3 font-bold text-blue-100" colSpan="4">PRIOR PROBABILITY</td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Initial estimate of how likely it is that your belief is true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">X</td>
+                    <td className="p-3 text-center text-green-400 font-bold text-lg">
+                        {result.prior_probability || 'N/A'}%
+                    </td>
+                    <td className="p-3 text-blue-400 text-xs">
+                        {result.prior_source || 'Research baseline'} 
+                        {result.prior_statistic && (
+                            <div className="mt-1 text-blue-300">
+                                {result.prior_statistic}
+                            </div>
+                        )}
+                    </td>
+                </tr>
+
+                {/* New Evidence Section */}
+                <tr className="bg-purple-900/30">
+                    <td className="p-3 font-bold text-purple-100" colSpan="4">A NEW EVENT OCCURS: YOUR RESPONSES ARE ANALYZED</td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Probability of your responses appearing, conditional on your belief being true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Y</td>
+                    <td className="p-3 text-center text-green-400 font-bold text-lg">
+                        {result.evidence_true || 0}%
+                    </td>
+                    <td className="p-3 text-purple-300 text-xs">
+                        Based on sentiment analysis of your answers
+                    </td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Probability of your responses appearing if your belief is NOT true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Z</td>
+                    <td className="p-3 text-center text-red-400 font-bold text-lg">
+                        {result.evidence_false || 0}%
+                    </td>
+                    <td className="p-3 text-purple-300 text-xs">
+                        Conditional probability analysis
+                    </td>
+                </tr>
+
+                {/* Posterior Probability Section */}
+                <tr className="bg-emerald-900/30">
+                    <td className="p-3 font-bold text-emerald-100" colSpan="4">POSTERIOR PROBABILITY</td>
+                </tr>
+                <tr>
+                    <td className="p-3 text-emerald-100">
+                        Revised estimate of how likely it is that your belief is true, given that we've analyzed your responses
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">
+                        <div>XY</div>
+                        <div className="text-xs">────</div>
+                        <div>XY + Z(1-X)</div>
+                    </td>
+                    <td className="p-3 text-center text-emerald-300 font-bold text-2xl">
+                        {result.posterior_probability || 0}%
+                    </td>
+                    <td className="p-3 text-blue-400 text-xs">
+                        <div>Bayes' Theorem calculation</div>
+                        {result.formula_display && (
+                            <div className="mt-1 font-mono text-blue-300">
+                                {result.formula_display}
+                            </div>
+                        )}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    {/* Calculation Steps */}
+    <div className="mt-4 p-3 bg-black/30 rounded text-xs text-purple-300">
+        <div className="font-semibold mb-2">Calculation Steps:</div>
+        <div>1. Prior: {result.prior_probability || 'X'}% baseline probability</div>
+        <div>2. Evidence For: {result.evidence_true || 'Y'}% strength of supporting evidence</div>
+        <div>3. Evidence Against: {result.evidence_false || 'Z'}% strength of contradicting evidence</div>
+        <div>4. Final: Applied Bayes' formula to get {result.posterior_probability || 0}% posterior probability</div>
+    </div>
+</div>
+{/* User’s Answers Recap */}
+<div className="mt-6 bg-indigo-800/40 p-4 rounded">
+    <h4 className="font-semibold text-purple-200 mb-2">Your Evidence Summary</h4>
+    {questions.map((q, i) => (
+        <div key={i} className="mb-3">
+            <div className="text-sm text-purple-400 italic">Q: {q}</div>
+          <div className="text-md text-purple-100 font-medium">A: {answers[i]}</div>
+
         </div>
-      );
-    }
+    ))}
+    <div className="text-xs text-purple-300 mt-2 italic">
+        These responses helped the AI estimate how strong the evidence was for and against your belief.
+    </div>
+</div>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<BayesicInstinct />);
-  </script>
+        {/* Big Result Display */}
+        <div className="text-center mb-6">
+            <div className="text-6xl font-bold text-purple-300 mb-2">
+                {result.posterior_probability || 0}%
+            </div>
+            <p className="text-purple-200">Your Final Probability</p>
+        </div>
+
+        {/* Interpretation */}
+        {result.interpretation && (
+            <div className="bg-indigo-900/40 p-4 rounded mb-4">
+                <div dangerouslySetInnerHTML={{ 
+                    __html: result.interpretation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                }} />
+            </div>
+        )}
+
+        {/* Evidence Summary */}
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className="bg-green-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence For</div>
+                <div className="text-xl">{result.evidence_true || 0}%</div>
+            </div>
+            <div className="bg-red-800/30 p-3 rounded">
+                <div className="font-semibold">Evidence Against</div>
+                <div className="text-xl">{result.evidence_false || 0}%</div>
+            </div>
+        </div>
+
+        <button 
+            onClick={reset} 
+            className="w-full bg-purple-600 py-3 rounded font-semibold hover:bg-purple-700 transition-all"
+        >
+            Try Another Prediction
+        </button>
+    </div>
+)}
+                                
+
+                        {/* Footer */}
+                        <div className="text-center mt-8 text-purple-300 text-sm">
+                            "Fortune favours the brave"
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<BayesicInstinct />, document.getElementById('root'));
+    </script>
 </body>
 </html>
