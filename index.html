@@ -181,76 +181,109 @@
     <div className="bg-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
         <h2 className="text-2xl font-bold mb-6">Here's what the data says...</h2>
         
-        {/* Probability Breakdown Table */}
-        <div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
-            <h3 className="text-lg font-bold mb-4 text-center">The Probability Breakdown</h3>
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-purple-500/30">
-                            <th className="text-left p-2 font-semibold text-purple-200">What We're Measuring</th>
-                            <th className="text-left p-2 font-semibold text-purple-200">Math Symbol</th>
-                            <th className="text-left p-2 font-semibold text-purple-200">Your %</th>
-                            <th className="text-left p-2 font-semibold text-purple-200">Data Source</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
-                            <td className="p-2 font-semibold text-purple-100" colSpan="4">STARTING POINT</td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                            <td className="p-2 text-purple-100">How likely this normally is</td>
-                            <td className="p-2 font-mono text-yellow-400">P(H)</td>
-                            <td className="p-2 text-green-400 font-bold">
-                                {result.prior_probability || 'N/A'}%
-                            </td>
-                            <td className="p-2 text-blue-400 text-xs">
-                                {result.prior_source || 'AI Research Analysis'}
-                            </td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20 bg-purple-950/30">
-                            <td className="p-2 font-semibold text-purple-100" colSpan="4">YOUR EVIDENCE</td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                            <td className="p-2 text-purple-100">Evidence supporting your wish</td>
-                            <td className="p-2 font-mono text-yellow-400">P(E|H)</td>
-                            <td className="p-2 text-green-400 font-bold">
-                                {result.evidence_true || 0}%
-                            </td>
-                            <td className="p-2 text-purple-300 text-xs">Based on your answers</td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20">
-                            <td className="p-2 text-purple-100">Evidence that might contradict it</td>
-                            <td className="p-2 font-mono text-yellow-400">P(E|¬H)</td>
-                            <td className="p-2 text-red-400 font-bold">
-                                {result.evidence_false || 0}%
-                            </td>
-                            <td className="p-2 text-purple-300 text-xs">The flip side calculation</td>
-                        </tr>
-                        <tr className="border-b border-purple-500/20 bg-emerald-950/30">
-                            <td className="p-2 font-semibold text-emerald-100" colSpan="4">YOUR FINAL ODDS</td>
-                        </tr>
-                        <tr>
-                            <td className="p-2 text-emerald-100">Updated probability after all evidence</td>
-                            <td className="p-2 font-mono text-yellow-400">P(H|E)</td>
-                            <td className="p-2 font-bold text-emerald-300 text-lg">
-                                {result.posterior_probability || 0}%
-                            </td>
-                            <td className="p-2 text-blue-400 text-xs">Bayes' Theorem Magic</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            {/* Formula Display */}
-            {result.formula_display && (
-                <div className="mt-4 p-3 bg-black/30 rounded text-center">
-                    <p className="text-purple-300 font-mono text-sm">
-                        <strong>Sacred Formula:</strong> {result.formula_display}
-                    </p>
-                </div>
-            )}
-        </div>
+        {/* Detailed Calculation Table */}
+<div className="bg-indigo-900/40 p-4 rounded-lg mb-6">
+    <h3 className="text-lg font-bold mb-4 text-center">Bayesian Calculation Breakdown</h3>
+    <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+            <thead>
+                <tr className="border-b-2 border-purple-500/40">
+                    <th className="text-left p-3 font-semibold text-purple-200 w-2/5">Component</th>
+                    <th className="text-center p-3 font-semibold text-purple-200 w-1/6">Variable</th>
+                    <th className="text-center p-3 font-semibold text-purple-200 w-1/6">Value</th>
+                    <th className="text-left p-3 font-semibold text-purple-200 w-1/3">Source/Citation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {/* Prior Probability Section */}
+                <tr className="bg-blue-900/30">
+                    <td className="p-3 font-bold text-blue-100" colSpan="4">PRIOR PROBABILITY</td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Initial estimate of how likely it is that your belief is true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">X</td>
+                    <td className="p-3 text-center text-green-400 font-bold text-lg">
+                        {result.prior_probability || 'N/A'}%
+                    </td>
+                    <td className="p-3 text-blue-400 text-xs">
+                        {result.prior_source || 'Research baseline'} 
+                        {result.prior_statistic && (
+                            <div className="mt-1 text-blue-300">
+                                {result.prior_statistic}
+                            </div>
+                        )}
+                    </td>
+                </tr>
+
+                {/* New Evidence Section */}
+                <tr className="bg-purple-900/30">
+                    <td className="p-3 font-bold text-purple-100" colSpan="4">A NEW EVENT OCCURS: YOUR RESPONSES ARE ANALYZED</td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Probability of your responses appearing, conditional on your belief being true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Y</td>
+                    <td className="p-3 text-center text-green-400 font-bold text-lg">
+                        {result.evidence_true || 0}%
+                    </td>
+                    <td className="p-3 text-purple-300 text-xs">
+                        Based on sentiment analysis of your answers
+                    </td>
+                </tr>
+                <tr className="border-b border-purple-500/20">
+                    <td className="p-3 text-purple-100">
+                        Probability of your responses appearing if your belief is NOT true
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">Z</td>
+                    <td className="p-3 text-center text-red-400 font-bold text-lg">
+                        {result.evidence_false || 0}%
+                    </td>
+                    <td className="p-3 text-purple-300 text-xs">
+                        Conditional probability analysis
+                    </td>
+                </tr>
+
+                {/* Posterior Probability Section */}
+                <tr className="bg-emerald-900/30">
+                    <td className="p-3 font-bold text-emerald-100" colSpan="4">POSTERIOR PROBABILITY</td>
+                </tr>
+                <tr>
+                    <td className="p-3 text-emerald-100">
+                        Revised estimate of how likely it is that your belief is true, given that we've analyzed your responses
+                    </td>
+                    <td className="p-3 text-center font-mono text-yellow-400 text-lg">
+                        <div>XY</div>
+                        <div className="text-xs">────</div>
+                        <div>XY + Z(1-X)</div>
+                    </td>
+                    <td className="p-3 text-center text-emerald-300 font-bold text-2xl">
+                        {result.posterior_probability || 0}%
+                    </td>
+                    <td className="p-3 text-blue-400 text-xs">
+                        <div>Bayes' Theorem calculation</div>
+                        {result.formula_display && (
+                            <div className="mt-1 font-mono text-blue-300">
+                                {result.formula_display}
+                            </div>
+                        )}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    {/* Calculation Steps */}
+    <div className="mt-4 p-3 bg-black/30 rounded text-xs text-purple-300">
+        <div className="font-semibold mb-2">Calculation Steps:</div>
+        <div>1. Prior: {result.prior_probability || 'X'}% baseline probability</div>
+        <div>2. Evidence For: {result.evidence_true || 'Y'}% strength of supporting evidence</div>
+        <div>3. Evidence Against: {result.evidence_false || 'Z'}% strength of contradicting evidence</div>
+        <div>4. Final: Applied Bayes' formula to get {result.posterior_probability || 0}% posterior probability</div>
+    </div>
+</div>
 
         {/* Big Result Display */}
         <div className="text-center mb-6">
